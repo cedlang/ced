@@ -1,52 +1,50 @@
-#ifndef __CED_H__
-#define __CED_H__
+#ifndef CED_LEXER_H
+#define CED_LEXER_H
 
 #include <stddef.h>
+#include "str.h"
 
 typedef enum {
-    // internal
-    ILLEGAL,
+    TOK_ILLEGAL,
 
-    // delimiters
-    SEMICOLON,
-    COLON,
-    COMMA,
+    TOK_SEMICOLON,
+    TOK_COLON,
+    TOK_COMMA,
 
-    //
-    L_PAREN,
-    R_PAREN,
-    L_BRACKET,
-    R_BRACKET,
-    L_BRACE,
-    R_BRACE,
+    TOK_L_PAREN,
+    TOK_R_PAREN,
+    TOK_L_BRACKET,
+    TOK_R_BRACKET,
+    TOK_L_BRACE,
+    TOK_R_BRACE,
 
-    // operators
-    EQUAL,
-    SUM,
-    SUB,
-    DOT,
-    STAR,
+    TOK_EQUAL,
+    TOK_SUM,
+    TOK_SUB,
+    TOK_DOT,
+    TOK_STAR,
 
-    // data types
-    INTEGER,
-    STRING,
-    CHARACTER,
+    TOK_INTEGER,
+    TOK_STRING,
+    TOK_CHARACTER,
 
-    // identifier
-    IDENTIFIER,
+    TOK_IDENTIFIER,
+    TOK_EOF,
 } toktype_t;
 
 typedef struct {
-    toktype_t type;
-    char *literal;
-} tok_t;
+    str_t src;
+    size_t pos;
+} lexer_state_t;
 
 typedef struct {
-    size_t len;
-    tok_t *toks;
-} tokchain_t;
+    toktype_t type;
+    str_t literal;
+} tok_t;
 
-tokchain_t lex(char *s);
-const char *type_string(toktype_t t);
+lexer_state_t create_lexer_state(str_t src);
+tok_t lexer_next_tok(lexer_state_t* state);
+
+str_t tok_type_to_str(toktype_t type);
 
 #endif
