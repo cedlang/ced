@@ -39,7 +39,7 @@ typedef enum {
     TOK_INTEGER,
     TOK_STRING,
     TOK_CHARACTER,
-
+    TOK_COMMENT,
     TOK_IDENTIFIER,
     TOK_EOF,
 } toktype_t;

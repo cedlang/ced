@@ -40,7 +40,7 @@ static char *toktype_str[] = {
     [TOK_INTEGER] = "integer",
     [TOK_STRING] = "string",
     [TOK_CHARACTER] = "character",
-
+    [TOK_COMMENT] = "comment",
     [TOK_IDENTIFIER] = "identifier",
     [TOK_EOF] = "eof",
 };
@@ -177,6 +177,44 @@ static str_t read_identifier(lexer_state_t *state) {
     return slice_str(state->src, start, state->pos);
 }
 
+static str_t read_comment(lexer_state_t *state, char multiline) {
+    if (cur(state) == '*' || cur(state) == '/') {
+        state->pos++;
+    }
+
+    size_t start = state->pos;
+    size_t end;
+    while (cur(state) != '\0') {
+        if(multiline) {
+            end = state->pos;
+            if (cur(state) == '*') {
+                state->pos++;
+                if (cur(state) == '/') {
+                    state->pos++;
+                    break;
+                }
+            }
+        } else {
+            if (cur(state) == '\n') {
+                end = state->pos;
+                state->pos++;
+                break;
+            }
+        }
+        state->pos++;
+    }
+
+    /* abrupt ending */
+    if (cur(state) == '\0') {
+        if (multiline) {
+            /* throw error: expected termination FOR MULTILINE comment */
+        }
+        end = state->pos;
+    }
+
+    return slice_str(state->src, start, end);
+}
+
 tok_t lexer_next_tok(lexer_state_t *state) {
     while (isspace(cur(state)))
         state->pos++;
@@ -276,13 +314,11 @@ tok_t lexer_next_tok(lexer_state_t *state) {
             tok.type = TOK_DIV;
             tok.literal = read_char(state);
             if (cur(state) == '/') {
-                while (cur(state) != '\0' && cur(state) != '\n') {
-                    state->pos++;
-                }
-
-                if (cur(state) == '\n') {
-                    state->pos++;
-                }
+                tok.type = TOK_COMMENT;
+                tok.literal = read_comment(state, 0);
+            } else if (cur(state) == '*') {
+                tok.type = TOK_COMMENT;
+                tok.literal = read_comment(state, 1);
             }
             break;
         case '%':
