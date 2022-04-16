@@ -22,7 +22,7 @@ str_t read_src(char *path) {
     }
 
     close(fd);
-
+    
     return to_str(buff);
 }
 
