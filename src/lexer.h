@@ -1,5 +1,5 @@
-#ifndef __CED_H__
-#define __CED_H__
+#ifndef CED_LEXER_H
+#define CED_LEXER_H
 
 #include <stddef.h>
 
