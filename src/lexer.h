@@ -2,6 +2,7 @@
 #define CED_LEXER_H
 
 #include <stddef.h>
+#include "str.h"
 
 typedef enum {
     TOK_ILLEGAL,
@@ -32,16 +33,18 @@ typedef enum {
 } toktype_t;
 
 typedef struct {
-    toktype_t type;
-    char *literal;
-} tok_t;
+    str_t src;
+    size_t pos;
+} lexer_state_t;
 
 typedef struct {
-    size_t len;
-    tok_t *toks;
-} tokchain_t;
+    toktype_t type;
+    str_t literal;
+} tok_t;
 
-tokchain_t lex(char *s);
-const char *type_string(toktype_t t);
+lexer_state_t create_lexer_state(str_t src);
+tok_t lexer_next_tok(lexer_state_t* state);
+
+str_t tok_type_to_str(toktype_t type);
 
 #endif

@@ -5,7 +5,7 @@
 
 #include "lexer.h"
 
-const char *toktype_str[] = {
+static char *toktype_str[] = {
     [TOK_ILLEGAL] = "illegal",
 
     [TOK_SEMICOLON] = ";",
@@ -31,157 +31,120 @@ const char *toktype_str[] = {
 
     [TOK_IDENTIFIER] = "identifier",
 };
-static size_t pos = 0;
 
-const char *type_string(toktype_t t) { return toktype_str[t]; }
+str_t tok_type_to_str(toktype_t type) { return to_str(toktype_str[type]); }
 
-static int is_space(char c) { return isspace(c); }
-static int is_alnum(char c) { return isalnum(c) || c == '_'; }
-static int is_digit(char c) { return c >= '0' && '9' >= c; }
+static int is_ident(char c) { return isalnum(c) || c == '_'; }
 
-static size_t len(int (*c)(char), char *s) {
-    size_t i = 0;
-    while ((*c)(s[i])) {
-        i++;
-    }
-    return i;
+static char cur(lexer_state_t* state) {
+    return state->src.content[state->pos];
 }
 
-static char *literal_char(char c) {
-    char *s = malloc(2 * sizeof(char));
-    s[0] = c;
-    s[1] = 0;
-    return s;
+static str_t read_char(lexer_state_t* state) {
+    state->pos++;
+    return slice_str(state->src, state->pos - 1, state->pos);
 }
 
-static char *read_char(char *s) { return literal_char(s[pos++]); }
+static str_t read_integer(lexer_state_t* state) {
+    size_t start = state->pos;
+    while (isdigit(cur(state))) state->pos++;
 
-static char *read_number(char *s) {
-    size_t n_len = len(is_digit, s);
-
-    char *buf = malloc(n_len * sizeof(char) + 1);
-    memcpy(buf, s, n_len);
-    buf[n_len] = 0;
-
-    pos += n_len;
-    return buf;
+    return slice_str(state->src, start, state->pos);
 }
 
-static char *read_identifier(char *s) {
-    size_t id_len = len(is_alnum, s);
+static str_t read_identifier(lexer_state_t* state) {
+    size_t start = state->pos;
+    while (is_ident(cur(state))) state->pos++;
 
-    char *buf = malloc(id_len * sizeof(char) + 1);
-    memcpy(buf, s, id_len);
-    buf[id_len] = 0;
-
-    pos += id_len;
-    return buf;
+    return slice_str(state->src, start, state->pos);
 }
 
-static tok_t read_token(char *s_) {
-    while (is_space(s_[pos]))
-        pos++;
+tok_t lexer_next_tok(lexer_state_t* state) {
+    while (isspace(state->src.content[state->pos])) state->pos++;
 
-    tok_t tok = {0};
-    char *s = &s_[pos];
+    tok_t tok;
 
-    switch (s_[pos]) {
-    case ';':
-        tok.type = TOK_SEMICOLON;
-        tok.literal = read_char(s_);
-        break;
-    case ':':
-        tok.type = TOK_COLON;
-        tok.literal = read_char(s_);
-        break;
-    case ',':
-        tok.type = TOK_COMMA;
-        tok.literal = read_char(s_);
-        break;
-    case '(':
-        tok.type = TOK_L_PAREN;
-        tok.literal = read_char(s_);
-        break;
-    case ')':
-        tok.type = TOK_R_PAREN;
-        tok.literal = read_char(s_);
-        break;
-    case '[':
-        tok.type = TOK_L_BRACKET;
-        tok.literal = read_char(s_);
-        break;
-    case ']':
-        tok.type = TOK_R_BRACKET;
-        tok.literal = read_char(s_);
-        break;
-    case '{':
-        tok.type = TOK_L_BRACE;
-        tok.literal = read_char(s_);
-        break;
-    case '}':
-        tok.type = TOK_R_BRACE;
-        tok.literal = read_char(s_);
-        break;
-    case '=':
-        tok.type = TOK_EQUAL;
-        tok.literal = read_char(s_);
-        break;
-    case '+':
-        tok.type = TOK_SUM;
-        tok.literal = read_char(s_);
-        break;
-    case '-':
-        tok.type = TOK_SUB;
-        tok.literal = read_char(s_);
-        break;
-    case '.':
-        tok.type = TOK_DOT;
-        tok.literal = read_char(s_);
-        break;
-    case '*':
-        tok.type = TOK_STAR;
-        tok.literal = read_char(s_);
-        break;
-    case '0' ... '9':
-        tok.type = TOK_INTEGER;
-        tok.literal = read_number(s);
-        break;
-    case 'a' ... 'z':
-    case 'A' ... 'Z':
-    case '_':
-        tok.type = TOK_IDENTIFIER;
-        tok.literal = read_identifier(s);
-        break;
-    case 0:
+    if (state->pos >= state->src.len) {
         tok.type = TOK_EOF;
-        break;
-    default:
-        tok.type = TOK_ILLEGAL;
-        tok.literal = read_char(s_);
-        break;
+        tok.literal = to_str("EOF");
+    } else if (is_ident(cur(state))) {
+        tok.type = TOK_IDENTIFIER;
+        tok.literal = read_identifier(state);
+    } else if (isdigit(cur(state))) {
+        tok.type = TOK_INTEGER;
+        tok.literal = read_integer(state);
+    } else {
+        switch (cur(state)) {
+        case ';':
+            tok.type = TOK_SEMICOLON;
+            tok.literal = read_char(state);
+            break;
+        case ':':
+            tok.type = TOK_COLON;
+            tok.literal = read_char(state);
+            break;
+        case ',':
+            tok.type = TOK_COMMA;
+            tok.literal = read_char(state);
+            break;
+        case '(':
+            tok.type = TOK_L_PAREN;
+            tok.literal = read_char(state);
+            break;
+        case ')':
+            tok.type = TOK_R_PAREN;
+            tok.literal = read_char(state);
+            break;
+        case '[':
+            tok.type = TOK_L_BRACKET;
+            tok.literal = read_char(state);
+            break;
+        case ']':
+            tok.type = TOK_R_BRACKET;
+            tok.literal = read_char(state);
+            break;
+        case '{':
+            tok.type = TOK_L_BRACE;
+            tok.literal = read_char(state);
+            break;
+        case '}':
+            tok.type = TOK_R_BRACE;
+            tok.literal = read_char(state);
+            break;
+        case '=':
+            tok.type = TOK_EQUAL;
+            tok.literal = read_char(state);
+            break;
+        case '+':
+            tok.type = TOK_SUM;
+            tok.literal = read_char(state);
+            break;
+        case '-':
+            tok.type = TOK_SUB;
+            tok.literal = read_char(state);
+            break;
+        case '.':
+            tok.type = TOK_DOT;
+            tok.literal = read_char(state);
+            break;
+        case '*':
+            tok.type = TOK_STAR;
+            tok.literal = read_char(state);
+            break;
+        default:
+            tok.type = TOK_ILLEGAL;
+            tok.literal = read_char(state);
+            break;
+        }
     }
+
     return tok;
 }
 
-tokchain_t lex(char *s) {
-    tokchain_t toks = {0};
+lexer_state_t create_lexer_state(str_t src) {
+    lexer_state_t state;
+    state.src = src;
+    state.pos = 0;
 
-    size_t slen = strlen(s);
-    size_t alloc = 0;
-
-    if (slen == 0) return toks;
-
-    while (pos < slen) {
-        tok_t tok = read_token(s);
-
-        if ((int)tok.type == EOF) break;
-
-        toks.len++;
-        if (toks.len >= alloc) {
-            alloc = toks.len * 2;
-            toks.toks = realloc(toks.toks, alloc * sizeof(tok_t));
-        }
-        toks.toks[toks.len - 1] = tok;
-    }
-    return toks;
+    return state;
 }
