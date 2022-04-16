@@ -24,6 +24,9 @@ typedef enum {
     TOK_DOT,
     TOK_STAR,
 
+    TOK_INC,
+    TOK_DEC,
+
     TOK_INTEGER,
     TOK_STRING,
     TOK_CHARACTER,

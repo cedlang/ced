@@ -25,6 +25,9 @@ static char *toktype_str[] = {
     [TOK_DOT] = ".",
     [TOK_STAR] = "*",
 
+    [TOK_INC] = "++",
+    [TOK_DEC] = "--",
+
     [TOK_INTEGER] = "integer",
     [TOK_STRING] = "string",
     [TOK_CHARACTER] = "character",
@@ -153,10 +156,16 @@ tok_t lexer_next_tok(lexer_state_t *state) {
         case '+':
             tok.type = TOK_SUM;
             tok.literal = read_char(state);
+            if (cur(state) == '+') {
+                tok.type = TOK_INC;
+            }
             break;
         case '-':
             tok.type = TOK_SUB;
             tok.literal = read_char(state);
+            if (cur(state) == '-') {
+                tok.type = TOK_DEC;
+            }
             break;
         case '.':
             tok.type = TOK_DOT;
