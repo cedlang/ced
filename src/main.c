@@ -2,31 +2,28 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 str_t read_src(char *path) {
-    FILE *f = fopen(path, "r");
-    if (!f) {
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
         fprintf(stderr, "no such file %s\n", path);
         exit(1);
     }
 
-    fseek(f, 0, SEEK_END);
-    long l = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    off_t len = lseek(fd, 0, SEEK_END);
+    lseek(fd, 0, SEEK_SET);
 
-    char *buff = malloc(l + 1);
-    int r = fread(buff, l, 1, f);
-    fclose(f);
-    if (r == 0) {
+    char *buff = malloc(len);
+    if (read(fd, buff, len) != len) {
         fprintf(stderr, "couldn't read from %s\n", path);
         exit(1);
     }
 
-    buff[l] = 0;
+    close(fd);
 
-    str_t src = to_str(buff);
-
-    return src;
+    return to_str(buff);
 }
 
 int main(int argc, char *argv[]) {
