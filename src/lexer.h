@@ -17,17 +17,29 @@ typedef enum {
     TOK_R_BRACKET,
     TOK_L_BRACE,
     TOK_R_BRACE,
+    TOK_L_ANGLE,
+    TOK_R_ANGLE,
 
     TOK_EQUAL,
     TOK_SUM,
     TOK_SUB,
+    TOK_DIV,
+    TOK_REM,
     TOK_DOT,
     TOK_STAR,
+
+    TOK_INC,
+    TOK_DEC,
+
+    TOK_LOGICAL_AND,
+    TOK_LOGICAL_OR,
+    TOK_BIT_AND,
+    TOK_BIT_OR,
 
     TOK_INTEGER,
     TOK_STRING,
     TOK_CHARACTER,
-
+    TOK_COMMENT,
     TOK_IDENTIFIER,
     TOK_EOF,
 } toktype_t;
