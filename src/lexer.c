@@ -30,6 +30,7 @@ static char *toktype_str[] = {
     [TOK_CHARACTER] = "character",
 
     [TOK_IDENTIFIER] = "identifier",
+    [TOK_EOF] = "eof",
 };
 
 str_t tok_type_to_str(toktype_t type) { return to_str(toktype_str[type]); }
@@ -60,7 +61,7 @@ static str_t read_identifier(lexer_state_t* state) {
 }
 
 tok_t lexer_next_tok(lexer_state_t* state) {
-    while (isspace(state->src.content[state->pos])) state->pos++;
+    while (isspace(cur(state))) state->pos++;
 
     tok_t tok;
 
