@@ -4,36 +4,31 @@
 #include <stddef.h>
 
 typedef enum {
-    // internal
-    ILLEGAL,
+    TOK_ILLEGAL,
 
-    // delimiters
-    SEMICOLON,
-    COLON,
-    COMMA,
+    TOK_SEMICOLON,
+    TOK_COLON,
+    TOK_COMMA,
 
-    //
-    L_PAREN,
-    R_PAREN,
-    L_BRACKET,
-    R_BRACKET,
-    L_BRACE,
-    R_BRACE,
+    TOK_L_PAREN,
+    TOK_R_PAREN,
+    TOK_L_BRACKET,
+    TOK_R_BRACKET,
+    TOK_L_BRACE,
+    TOK_R_BRACE,
 
-    // operators
-    EQUAL,
-    SUM,
-    SUB,
-    DOT,
-    STAR,
+    TOK_EQUAL,
+    TOK_SUM,
+    TOK_SUB,
+    TOK_DOT,
+    TOK_STAR,
 
-    // data types
-    INTEGER,
-    STRING,
-    CHARACTER,
+    TOK_INTEGER,
+    TOK_STRING,
+    TOK_CHARACTER,
 
-    // identifier
-    IDENTIFIER,
+    TOK_IDENTIFIER,
+    TOK_EOF,
 } toktype_t;
 
 typedef struct {

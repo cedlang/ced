@@ -6,30 +6,30 @@
 #include "lexer.h"
 
 const char *toktype_str[] = {
-    [ILLEGAL] = "illegal",
+    [TOK_ILLEGAL] = "illegal",
 
-    [SEMICOLON] = ";",
-    [COLON] = ":",
-    [COMMA] = ",",
+    [TOK_SEMICOLON] = ";",
+    [TOK_COLON] = ":",
+    [TOK_COMMA] = ",",
 
-    [L_PAREN] = "(",
-    [R_PAREN] = ")",
-    [L_BRACKET] = "[",
-    [R_BRACKET] = "]",
-    [L_BRACE] = "{",
-    [R_BRACE] = "}",
+    [TOK_L_PAREN] = "(",
+    [TOK_R_PAREN] = ")",
+    [TOK_L_BRACKET] = "[",
+    [TOK_R_BRACKET] = "]",
+    [TOK_L_BRACE] = "{",
+    [TOK_R_BRACE] = "}",
 
-    [EQUAL] = "=",
-    [SUM] = "+",
-    [SUB] = "-",
-    [DOT] = ".",
-    [STAR] = "*",
+    [TOK_EQUAL] = "=",
+    [TOK_SUM] = "+",
+    [TOK_SUB] = "-",
+    [TOK_DOT] = ".",
+    [TOK_STAR] = "*",
 
-    [INTEGER] = "integer",
-    [STRING] = "string",
-    [CHARACTER] = "character",
+    [TOK_INTEGER] = "integer",
+    [TOK_STRING] = "string",
+    [TOK_CHARACTER] = "character",
 
-    [IDENTIFIER] = "identifier",
+    [TOK_IDENTIFIER] = "identifier",
 };
 static size_t pos = 0;
 
@@ -87,76 +87,76 @@ static tok_t read_token(char *s_) {
 
     switch (s_[pos]) {
     case ';':
-        tok.type = SEMICOLON;
+        tok.type = TOK_SEMICOLON;
         tok.literal = read_char(s_);
         break;
     case ':':
-        tok.type = COLON;
+        tok.type = TOK_COLON;
         tok.literal = read_char(s_);
         break;
     case ',':
-        tok.type = COMMA;
+        tok.type = TOK_COMMA;
         tok.literal = read_char(s_);
         break;
     case '(':
-        tok.type = L_PAREN;
+        tok.type = TOK_L_PAREN;
         tok.literal = read_char(s_);
         break;
     case ')':
-        tok.type = R_PAREN;
+        tok.type = TOK_R_PAREN;
         tok.literal = read_char(s_);
         break;
     case '[':
-        tok.type = L_BRACKET;
+        tok.type = TOK_L_BRACKET;
         tok.literal = read_char(s_);
         break;
     case ']':
-        tok.type = R_BRACKET;
+        tok.type = TOK_R_BRACKET;
         tok.literal = read_char(s_);
         break;
     case '{':
-        tok.type = L_BRACE;
+        tok.type = TOK_L_BRACE;
         tok.literal = read_char(s_);
         break;
     case '}':
-        tok.type = R_BRACE;
+        tok.type = TOK_R_BRACE;
         tok.literal = read_char(s_);
         break;
     case '=':
-        tok.type = EQUAL;
+        tok.type = TOK_EQUAL;
         tok.literal = read_char(s_);
         break;
     case '+':
-        tok.type = SUM;
+        tok.type = TOK_SUM;
         tok.literal = read_char(s_);
         break;
     case '-':
-        tok.type = SUB;
+        tok.type = TOK_SUB;
         tok.literal = read_char(s_);
         break;
     case '.':
-        tok.type = DOT;
+        tok.type = TOK_DOT;
         tok.literal = read_char(s_);
         break;
     case '*':
-        tok.type = STAR;
+        tok.type = TOK_STAR;
         tok.literal = read_char(s_);
         break;
     case '0' ... '9':
-        tok.type = INTEGER;
+        tok.type = TOK_INTEGER;
         tok.literal = read_number(s);
         break;
     case 'a' ... 'z':
     case 'A' ... 'Z':
     case '_':
-        tok.type = IDENTIFIER;
+        tok.type = TOK_IDENTIFIER;
         tok.literal = read_identifier(s);
         break;
     case 0:
-        tok.type = EOF;
+        tok.type = TOK_EOF;
         break;
     default:
-        tok.type = ILLEGAL;
+        tok.type = TOK_ILLEGAL;
         tok.literal = read_char(s_);
         break;
     }
