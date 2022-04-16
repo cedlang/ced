@@ -52,6 +52,39 @@ static str_t read_integer(lexer_state_t *state) {
     return slice_str(state->src, start, state->pos);
 }
 
+static str_t read_quoted(lexer_state_t *state, char quote_sym) {
+    if (cur(state) == quote_sym) {
+        state->pos++;
+    } else {
+        /* throw error: expected quote sym */
+        abort();
+    }
+
+    /* quote itself will not be part of the sliced string, so start = quote+1 */
+    size_t start = state->pos;
+    while (cur(state) != '\0' && cur(state) != quote_sym) {
+        if (cur(state) == '\\') {
+            state->pos++;
+            /* todo: do your interpreting of shit here (\n, \r, \t, \b, \x1b, etc) */
+            if (cur(state) == '\0') {
+                /* throw error: expected character after \ */
+                abort();
+            } else if(cur(state) == quote_sym) {
+                state->pos++;
+            }
+        } else {
+            state->pos++;
+        }
+    }
+
+    if (cur(state) != quote_sym) {
+        /* throw error: expected enclosing quote character */
+        abort();
+    }
+    state->pos++;
+    return slice_str(state->src, start, state->pos - 1);
+}
+
 static str_t read_identifier(lexer_state_t *state) {
     size_t start = state->pos;
     while (is_ident(cur(state)))
@@ -132,6 +165,14 @@ tok_t lexer_next_tok(lexer_state_t *state) {
         case '*':
             tok.type = TOK_STAR;
             tok.literal = read_char(state);
+            break;
+        case '"':
+            tok.type = TOK_STRING;
+            tok.literal = read_quoted(state, '"');
+            break;
+        case '\'':
+            tok.type = TOK_CHARACTER;
+            tok.literal = read_quoted(state, '\'');
             break;
         default:
             tok.type = TOK_ILLEGAL;
