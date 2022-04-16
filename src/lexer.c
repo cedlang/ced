@@ -32,8 +32,8 @@ static char *toktype_str[] = {
     [TOK_INC] = "++",
     [TOK_DEC] = "--",
 
-    [TOK_LOGICAL_AND] = "&&",
-    [TOK_LOGICAL_OR] = "||",
+    [TOK_LOGICAL_AND] = "&",
+    [TOK_LOGICAL_OR] = "|",
     [TOK_BIT_AND] = "&&",
     [TOK_BIT_OR] = "||",
 
@@ -65,7 +65,8 @@ static int is_base_digit(char c, int base) {
     if (set == NULL) {
         return 0;
     } else {
-        /* assert: (ptrdiff_t)set - (ptrdiff_t)alphanum_set is not bigger than strlen(alphanum_set) */
+        /* assert: (ptrdiff_t)set - (ptrdiff_t)alphanum_set is not bigger than
+         * strlen(alphanum_set) */
         /* check that the length is not bigger than the base */
         int num = (int)((ptrdiff_t)set - (ptrdiff_t)alphanum_set);
         if (num > base) {
@@ -147,11 +148,12 @@ static str_t read_quoted(lexer_state_t *state, char quote_sym) {
     while (cur(state) != '\0' && cur(state) != quote_sym) {
         if (cur(state) == '\\') {
             state->pos++;
-            /* todo: do your interpreting of shit here (\n, \r, \t, \b, \x1b, etc) */
+            /* todo: do your interpreting of shit here (\n, \r, \t, \b, \x1b,
+             * etc) */
             if (cur(state) == '\0') {
                 /* throw error: expected character after \ */
                 abort();
-            } else if(cur(state) == quote_sym) {
+            } else if (cur(state) == quote_sym) {
                 state->pos++;
             }
         } else {
