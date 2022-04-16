@@ -1,8 +1,8 @@
 #ifndef CED_LEXER_H
 #define CED_LEXER_H
 
-#include <stddef.h>
 #include "str.h"
+#include <stddef.h>
 
 typedef enum {
     TOK_ILLEGAL,
@@ -43,7 +43,7 @@ typedef struct {
 } tok_t;
 
 lexer_state_t create_lexer_state(str_t src);
-tok_t lexer_next_tok(lexer_state_t* state);
+tok_t lexer_next_tok(lexer_state_t *state);
 
 str_t tok_type_to_str(toktype_t type);
 
