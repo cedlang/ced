@@ -1,9 +1,9 @@
-#include "lexer.h"
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include "lexer.h"
 
 str_t read_src(char *path) {
     int fd = open(path, O_RDONLY);
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
         cur = lexer_next_tok(&state);
         str_t type = tok_type_to_str(cur.type);
 
-        printf("%.*s -> %.*s\n", (int)type.len, type.content,
-               (int)cur.literal.len, cur.literal.content);
+        printf("%.*s -> %.*s (%ld:%ld)\n", (int)type.len, type.content,
+               (int)cur.literal.len, cur.literal.content, cur.line, cur.column);
     } while (cur.type != TOK_EOF);
 
     return 0;
