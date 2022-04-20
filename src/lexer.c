@@ -39,15 +39,25 @@ static int is_ident(char c) { return isalnum(c) || c == '_'; }
 
 static char cur(lexer_state_t *state) { return state->src.content[state->pos]; }
 
-static str_t read_char(lexer_state_t *state) {
+static void advance(lexer_state_t *state) {
+    state->column++;
+    if (cur(state) == '\n') {
+        state->line++;
+        state->column = 1;
+    }
+
     state->pos++;
+}
+
+static str_t read_char(lexer_state_t *state) {
+    advance(state);
     return slice_str(state->src, state->pos - 1, state->pos);
 }
 
 static str_t read_integer(lexer_state_t *state) {
     size_t start = state->pos;
     while (isdigit(cur(state)))
-        state->pos++;
+        advance(state);
 
     return slice_str(state->src, start, state->pos);
 }
@@ -55,16 +65,16 @@ static str_t read_integer(lexer_state_t *state) {
 static str_t read_identifier(lexer_state_t *state) {
     size_t start = state->pos;
     while (is_ident(cur(state)))
-        state->pos++;
+        advance(state);
 
     return slice_str(state->src, start, state->pos);
 }
 
 tok_t lexer_next_tok(lexer_state_t *state) {
     while (isspace(cur(state)))
-        state->pos++;
+        advance(state);
 
-    tok_t tok;
+    tok_t tok = {.line = state->line, .column = state->column};
 
     if (state->pos >= state->src.len) {
         tok.type = TOK_EOF;
@@ -144,9 +154,5 @@ tok_t lexer_next_tok(lexer_state_t *state) {
 }
 
 lexer_state_t create_lexer_state(str_t src) {
-    lexer_state_t state;
-    state.src = src;
-    state.pos = 0;
-
-    return state;
+    return (lexer_state_t){.src = src, .pos = 0, .line = 1, .column = 1};
 }

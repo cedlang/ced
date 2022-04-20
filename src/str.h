@@ -1,5 +1,6 @@
 #ifndef CED_STR_H
 #define CED_STR_H
+
 #include <stdint.h>
 #include <string.h>
 
